@@ -6,7 +6,7 @@ type Props = {
 };
 
 const Board: FC<Props> = ({ children }) => {
-  return <div className={classes.board}>{children}</div>;
+  return <section className={classes.board}>{children}</section>;
 };
 
 export default Board;

@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import classes from "./GreetingPopup.module.sass";
 import Input from "../UI/Input";
 import Button from "../UI/Button";
+import { useLocalStorage } from "../../hook/useLocalStorage";
 
 const GreetingPopup = () => {
   const [isShow, setIsShow] = useState<boolean>(true);
-  const [name, setName] = useState<string>("2");
+  const [name, setName] = useLocalStorage("trelloUsername");
 
   useEffect(() => {
-    if (window.localStorage.getItem("trelloUsername")) {
+    if (name) {
       setIsShow(false);
     }
   }, []);
 
   const onGetOutGreetingPopup = () => {
     setIsShow(false);
-    window.localStorage.setItem("trelloUsername", name);
+    setName(name);
   };
 
   return (
@@ -23,7 +24,9 @@ const GreetingPopup = () => {
       <div className={classes.overlayPopup}>
         <div className={classes.greetingPopup}>
           <h1 className={classes.title}>What's your name, trello clone?</h1>
-          <div style={{ width: "270px", margin: "30px 0 50px" }}>
+          <div
+            style={{ width: "270px", maxWidth: "100%", margin: "30px 0 50px" }}
+          >
             <Input
               value={name}
               clearValue={() => setName("")}
