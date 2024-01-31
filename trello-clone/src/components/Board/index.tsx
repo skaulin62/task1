@@ -1,11 +1,11 @@
-import React from "react";
+import React, { FC } from "react";
 import classes from "./Board.module.sass";
 
 type Props = {
-  children: string | JSX.Element | JSX.Element[] | React.ReactNode | null;
+  children?: string | JSX.Element | JSX.Element[] | React.ReactNode | null;
 };
 
-const Board = ({ children }: Props) => {
+const Board: FC<Props> = ({ children }) => {
   return <div className={classes.board}>{children}</div>;
 };
 
