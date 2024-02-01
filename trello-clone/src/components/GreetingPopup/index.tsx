@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import classes from "./GreetingPopup.module.sass";
 import Input from "../UI/Input";
 import Button from "../UI/Button";

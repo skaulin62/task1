@@ -1,36 +1,19 @@
-import { useState } from "react";
 import Board from "./components/Board";
 import ColumnOfCards from "./components/ColumnOfCards";
 import GreetingPopup from "./components/GreetingPopup";
-import { map } from "jquery";
+
 import { Cards } from "./types/types";
+import { useTrelloContext } from "./context/context";
 
 const App = () => {
-  const [cards, setCards] = useState<Cards[]>([
-    {
-      title: "TODO",
-      item: [],
-    },
-    {
-      title: "In Progress",
-      item: [],
-    },
-    {
-      title: "Testing",
-      item: [],
-    },
-    {
-      title: "Done",
-      item: [],
-    },
-  ]);
+  const { cards, changeTitleCards } = useTrelloContext();
 
   return (
     <div className="container">
       <GreetingPopup />
       <Board>
         {cards.map((card: Cards, index: number) => (
-          <ColumnOfCards key={index} title={card.title} />
+          <ColumnOfCards key={index} card={card} setCards={changeTitleCards} />
         ))}
       </Board>
     </div>

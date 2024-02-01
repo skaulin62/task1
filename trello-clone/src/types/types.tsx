@@ -8,6 +8,7 @@ export interface Card {
   author: string;
   descr: string;
   comments: Comment[];
+  countComments: number;
 }
 
 export interface Cards {
