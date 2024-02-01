@@ -3,21 +3,7 @@ import Board from "./components/Board";
 import ColumnOfCards from "./components/ColumnOfCards";
 import GreetingPopup from "./components/GreetingPopup";
 import { map } from "jquery";
-
-interface Card {
-  name: string;
-  author: string;
-  descr: string;
-  comments: {
-    author: string;
-    content: string;
-  }[];
-}
-
-interface Cards {
-  title: string;
-  item: Card[];
-}
+import { Cards } from "./types/types";
 
 const App = () => {
   const [cards, setCards] = useState<Cards[]>([

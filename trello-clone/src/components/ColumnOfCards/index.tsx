@@ -19,15 +19,30 @@ const ColumnOfCards: FC<Props> = ({ title }) => {
         <h3>{title}</h3>
         <input onChange={() => {}} value="I'm hidden:)" hidden />
       </div>
-      <div className={classes.listCards}>{/* cards */}</div>
-      <Input
-        hidden={isAdding}
-        value={newCardTitle}
-        clearValue={() => setNewCardTitle("")}
-        placeholder="Typing about new cards"
-        onChange={(e) => setNewCardTitle(e.target.value)}
-      />
-      <Button onClick={() => setIsAdding(!isAdding)}>Add card</Button>
+      <div className={classes.listCards}>
+        {/* cards */}
+        dasd<div>dasd</div>
+        dasd<div>dasd</div>
+        dasd<div>dasd</div>
+        dasd<div>dasd</div>
+        dasd<div>dasd</div>
+        dasd<div>dasd</div>
+        dasd<div>dasd</div>
+        dasd<div>dasd</div>
+        dasd<div>dasd</div>dasd<div>dasd</div>dasd<div>dasd</div>dasd
+        <div>dasd</div>dasd<div>dasd</div>dasd<div>dasd</div>dasd<div>dasd</div>
+        dasd<div>dasd</div>dasd<div>dasd</div>dasd<div>dasd</div>
+      </div>
+      <div style={{ display: "flex", gap: "5px", flexDirection: "column" }}>
+        <Input
+          hidden={!isAdding}
+          value={newCardTitle}
+          clearValue={() => setNewCardTitle("")}
+          placeholder="Typing about new cards"
+          onChange={(e) => setNewCardTitle(e.target.value)}
+        />
+        <Button onClick={() => setIsAdding(!isAdding)}>Add card</Button>
+      </div>
     </div>
   );
 };

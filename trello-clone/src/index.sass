@@ -1,18 +1,24 @@
-*,::after,::before 
+*,::after,::before
   margin: 0
   padding: 0
   box-sizing: border-box
-  
-body 
+
+*::-webkit-scrollbar
+  width: 5px
+
+*::-webkit-scrollbar-track
+  background-color: lightgray
+  border-radius: 5px
+
+*::-webkit-scrollbar-thumb
+  background: #363737
+  border-radius: 5px
+
+body
   background-color: #363737
-  
-.container 
+
+.container
   max-width: 1240px
   margin: 0 auto
   padding: 30px
-  height: 100vh  
-
-
-
-
-
+  height: 100vh
