@@ -11,19 +11,22 @@ interface Props {
 }
 
 const ColumnOfCards: FC<Props> = ({ card }) => {
-  const { changeTitleCards, addItem } = useTrelloContext();
+  const { changeCardsTitle, addCardsItem } = useTrelloContext();
 
   const [isAdding, setIsAdding] = useState<boolean>(false);
   const [newCardTitle, setNewCardTitle] = useState<string>("");
   const [newColTitle, setNewColTitle] = useState<string>("");
   const [isEditColTitle, setIsEditColTitle] = useState<boolean>(false);
+
   const inputColRef = useRef<HTMLDivElement | null>(null);
   const inputNewCardTitleRef = useRef<HTMLDivElement | null>(null);
+  const fieldColTitle = useRef<HTMLInputElement | null>(null);
+  const fieldNewCardTitle = useRef<HTMLInputElement | null>(null);
 
-  const handleChangeTitleCol = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleChangeColTitle = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setIsEditColTitle(!isEditColTitle);
-      changeTitleCards(newColTitle, card.title);
+      changeCardsTitle(newColTitle, card.title);
       setNewColTitle("");
     }
   };
@@ -34,7 +37,7 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
     if (e.key === "Enter") {
       setIsAdding(!isEditColTitle);
 
-      clickAddItem();
+      clickAddCardItem();
       setNewCardTitle("");
     }
   };
@@ -62,17 +65,17 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
     };
   }, []);
 
-  const clickAddItem = () => {
+  const clickAddCardItem = () => {
     if (isAdding) {
-      const newCard = {
+      const newCard: Card = {
         name: newCardTitle,
-        author: window.localStorage.getItem("trelloUsername"),
+        author: JSON.stringify(window.localStorage.getItem("trelloUsername")),
         descr: "",
         comments: [],
         countComments: 0,
       };
-      console.log(newCard);
-      addItem(newCard, card);
+
+      addCardsItem(newCard, card);
     } else {
     }
     setNewCardTitle("");
@@ -82,13 +85,17 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
     <div className={classes.columnCards}>
       <div ref={inputColRef} className={classes.title}>
         <h3
-          onClick={() => setIsEditColTitle(!isEditColTitle)}
+          onClick={() => {
+            setIsEditColTitle(!isEditColTitle);
+            setTimeout(() => fieldColTitle.current?.focus());
+          }}
           hidden={isEditColTitle}
         >
           {card.title}
         </h3>
         <Input
-          onKeyDown={(e) => handleChangeTitleCol(e)}
+          ref={fieldColTitle}
+          onKeyDown={(e) => handleChangeColTitle(e)}
           placeholder="Type new title"
           onChange={(e) => setNewColTitle(e.target.value)}
           value={newColTitle}
@@ -106,6 +113,7 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
         style={{ display: "flex", gap: "5px", flexDirection: "column" }}
       >
         <Input
+          ref={fieldNewCardTitle}
           onKeyDown={handleChangeNewCardTitle}
           hidden={!isAdding}
           value={newCardTitle}
@@ -113,7 +121,14 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
           placeholder="Type title of new cards"
           onChange={(e) => setNewCardTitle(e.target.value)}
         />
-        <Button onClick={() => clickAddItem()}>Add card</Button>
+        <Button
+          onClick={() => {
+            clickAddCardItem();
+            setTimeout(() => fieldNewCardTitle.current?.focus());
+          }}
+        >
+          Add card
+        </Button>
       </div>
     </div>
   );

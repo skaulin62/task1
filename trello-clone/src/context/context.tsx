@@ -1,7 +1,13 @@
 import { createContext, useContext, useState } from "react";
 import { Card, Cards } from "../types/types";
 
-export const TrelloContext = createContext<any>({});
+interface TypeContext {
+  cards: Cards[];
+  changeCardsTitle: (title: string, lastTitle: string) => void;
+  addCardsItem: (item: Card, cards: Cards) => void;
+}
+
+export const TrelloContext = createContext<TypeContext>({} as TypeContext);
 export const useTrelloContext = () => useContext(TrelloContext);
 
 type Props = {
@@ -119,7 +125,7 @@ export const TrelloContextProvider = (props: Props) => {
     },
   ]);
 
-  const changeTitleCards = (title: string, lastTitle: string) => {
+  const changeCardsTitle = (title: string, lastTitle: string) => {
     const includedCount = cards.reduce((acc: number, card: Cards) => {
       if (card.title.toLowerCase() === title.toLowerCase()) acc += 1;
       return acc;
@@ -137,7 +143,7 @@ export const TrelloContextProvider = (props: Props) => {
       console.log(cards);
     }
   };
-  const addItem = (item: Card, cards: Cards) => {
+  const addCardsItem = (item: Card, cards: Cards) => {
     const includedCount = cards.item.reduce((acc: number, itemCard: Card) => {
       if (item.name.toLowerCase() === itemCard.name.toLowerCase()) acc += 1;
       return acc;
@@ -159,7 +165,7 @@ export const TrelloContextProvider = (props: Props) => {
   };
 
   return (
-    <TrelloContext.Provider value={{ changeTitleCards, addItem, cards }}>
+    <TrelloContext.Provider value={{ changeCardsTitle, addCardsItem, cards }}>
       {props.children}
     </TrelloContext.Provider>
   );
