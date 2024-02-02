@@ -1,14 +1,28 @@
 import { FC } from "react";
 import { Card } from "../../types/types";
 import classes from "./CardsItem.module.sass";
+import { useTrelloContext } from "../../context/context";
 
 interface Props {
   item: Card;
 }
 
 const CardItem: FC<Props> = ({ item }) => {
+  const { setSelectedCard } = useTrelloContext();
+
   return (
-    <div className={classes.cardItem}>
+    <div
+      onClick={() =>
+        setSelectedCard({
+          name: "string",
+          author: "",
+          descr: "string",
+          comments: [],
+          countComments: 0,
+        })
+      }
+      className={classes.cardItem}
+    >
       <span className={classes.title}>{item.name}</span>
       {item.countComments !== 0 && (
         <div className={classes.footInfo}>

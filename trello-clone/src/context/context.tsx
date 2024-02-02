@@ -3,6 +3,8 @@ import { Card, Cards } from "../types/types";
 
 interface TypeContext {
   cards: Cards[];
+  selectedCard: Card;
+  setSelectedCard: (item: Card) => void;
   changeCardsTitle: (title: string, lastTitle: string) => void;
   addCardsItem: (item: Card, cards: Cards) => void;
 }
@@ -124,6 +126,7 @@ export const TrelloContextProvider = (props: Props) => {
       ],
     },
   ]);
+  const [selectedCard, setSelectedCard] = useState<Card>({} as Card);
 
   const changeCardsTitle = (title: string, lastTitle: string) => {
     const includedCount = cards.reduce((acc: number, card: Cards) => {
@@ -165,7 +168,15 @@ export const TrelloContextProvider = (props: Props) => {
   };
 
   return (
-    <TrelloContext.Provider value={{ changeCardsTitle, addCardsItem, cards }}>
+    <TrelloContext.Provider
+      value={{
+        changeCardsTitle,
+        selectedCard,
+        setSelectedCard,
+        addCardsItem,
+        cards,
+      }}
+    >
       {props.children}
     </TrelloContext.Provider>
   );
