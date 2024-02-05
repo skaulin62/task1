@@ -14,8 +14,8 @@ const App = () => {
       {Object.keys(selectedCard).length !== 0 ? <CardDetailsPopup /> : null}
       <GreetingPopup />
       <Board>
-        {cards.map((card: Cards, index: number) => (
-          <ColumnOfCards key={index} card={card} />
+        {cards.map((card: Cards) => (
+          <ColumnOfCards key={card.id} card={card} />
         ))}
       </Board>
     </div>
