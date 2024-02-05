@@ -1,12 +1,19 @@
 import { createContext, useContext, useState } from "react";
-import { Card, Cards } from "../types/types";
+import { Card, Cards, SelectCard, Comment } from "../types/types";
+import { fakeID } from "../utils";
 
 interface TypeContext {
   cards: Cards[];
-  selectedCard: Card;
-  setSelectedCard: (item: Card) => void;
+  selectedCard: SelectCard;
+  setSelectedCard: (selectCard: SelectCard) => void;
   changeCardsTitle: (title: string, lastTitle: string) => void;
   addCardsItem: (item: Card, cards: Cards) => void;
+  deleteCardsItem: (selectCard: SelectCard) => void;
+  renameCardsItem: (SelectCard: SelectCard) => boolean;
+  changeDescrCardsItem: (selectCard: SelectCard) => void;
+  addCardsItemComment: (selectCard: SelectCard, comment: Comment) => void;
+  deleteCarsItemComment: (selectCard: SelectCard, comment: Comment) => void;
+  changeCardsItemComment: (selectCard: SelectCard, comment: Comment) => void;
 }
 
 export const TrelloContext = createContext<TypeContext>({} as TypeContext);
@@ -19,18 +26,22 @@ type Props = {
 export const TrelloContextProvider = (props: Props) => {
   const [cards, setCards] = useState<Cards[]>([
     {
+      id: fakeID(),
       title: "TODO",
       item: [
         {
+          id: fakeID(),
           name: "Name 1",
           author: "Author 1",
           descr: "",
           comments: [
             {
+              id: fakeID(),
               author: "Author 1",
               content: "Nice",
             },
             {
+              id: fakeID(),
               author: "Author 2",
               content: "GOOD",
             },
@@ -40,84 +51,28 @@ export const TrelloContextProvider = (props: Props) => {
       ],
     },
     {
+      id: fakeID(),
       title: "In Progress",
       item: [
         {
+          id: fakeID(),
           name: "Name 1",
           author: "Author 1",
           descr: "",
-          comments: [
-            {
-              author: "Author 1",
-              content: "Nice",
-            },
-            {
-              author: "Author 2",
-              content: "GOOD",
-            },
-          ],
-          countComments: 2,
-        },
-        {
-          name: "Name 2",
-          author: "Author 1",
-          descr: "",
-          comments: [
-            {
-              author: "Author 1",
-              content: "Nice",
-            },
-            {
-              author: "Author 2",
-              content: "GOOD",
-            },
-          ],
+          comments: [],
           countComments: 0,
         },
         {
+          id: fakeID(),
           name: "Name 2",
           author: "Author 1",
           descr: "",
-          comments: [
-            {
-              author: "Author 1",
-              content: "Nice",
-            },
-            {
-              author: "Author 2",
-              content: "GOOD",
-            },
-          ],
+          comments: [],
           countComments: 0,
         },
-      ],
-    },
-    {
-      title: "Testing",
-      item: [
         {
-          name: "Name 1",
-          author: "Author 1",
-          descr: "",
-          comments: [
-            {
-              author: "Author 1",
-              content: "Nice",
-            },
-            {
-              author: "Author 2",
-              content: "GOOD",
-            },
-          ],
-          countComments: 2,
-        },
-      ],
-    },
-    {
-      title: "Done",
-      item: [
-        {
-          name: "Name 1",
+          id: fakeID(),
+          name: "Name 2",
           author: "Author 1",
           descr: "",
           comments: [],
@@ -125,8 +80,40 @@ export const TrelloContextProvider = (props: Props) => {
         },
       ],
     },
+    {
+      id: fakeID(),
+      title: "Testing",
+      item: [
+        {
+          id: fakeID(),
+          name: "Name 1",
+          author: "Author 1",
+          descr: "",
+          comments: [
+            {
+              id: fakeID(),
+              author: "Author 1",
+              content: "Nice",
+            },
+            {
+              id: fakeID(),
+              author: "Author 2",
+              content: "GOOD",
+            },
+          ],
+          countComments: 2,
+        },
+      ],
+    },
+    {
+      id: fakeID(),
+      title: "Done",
+      item: [],
+    },
   ]);
-  const [selectedCard, setSelectedCard] = useState<Card>({} as Card);
+  const [selectedCard, setSelectedCard] = useState<SelectCard>(
+    {} as SelectCard
+  );
 
   const changeCardsTitle = (title: string, lastTitle: string) => {
     const includedCount = cards.reduce((acc: number, card: Cards) => {
@@ -154,8 +141,9 @@ export const TrelloContextProvider = (props: Props) => {
     if (item.name !== "" && cards && includedCount === 0) {
       setCards((prev) =>
         prev.map((card: Cards): Cards => {
-          if (cards.title === card.title) {
+          if (cards.id === card.id) {
             return {
+              id: cards.id,
               title: cards.title,
               item: [...cards.item, item],
             };
@@ -166,6 +154,178 @@ export const TrelloContextProvider = (props: Props) => {
     }
     console.log(cards);
   };
+  const deleteCardsItem = (selectCard: SelectCard) => {
+    const { item, columnId } = selectCard;
+
+    setCards((prev) =>
+      prev.map((card: Cards) => {
+        if (card.id === columnId) {
+          const withoutItem = card.item.filter(
+            (cardItem: Card) => cardItem.id !== item.id
+          );
+          return {
+            ...card,
+            item: withoutItem,
+          };
+        }
+        return card;
+      })
+    );
+  };
+  const renameCardsItem = (selectCard: SelectCard) => {
+    if (!selectCard.item.name) return false;
+    const foundCard = cards.find(
+      (card: Cards) => card.id === selectCard.columnId
+    );
+    const includedCount = foundCard?.item.reduce(
+      (acc: number, itemCard: Card) => {
+        if (selectCard.item.name.toLowerCase() === itemCard.name.toLowerCase())
+          acc += 1;
+        return acc;
+      },
+      0
+    );
+    if (includedCount !== 0) return false;
+
+    setCards((prev) =>
+      prev.map((cards: Cards) => {
+        if (cards.id === selectCard.columnId) {
+          const newListItem: Card[] = cards.item.map((card: Card) => {
+            if (card.id === selectCard.item.id) {
+              return selectCard.item;
+            }
+            return card;
+          });
+          return {
+            ...cards,
+            item: newListItem,
+          };
+        }
+        return cards;
+      })
+    );
+    return true;
+  };
+  const changeDescrCardsItem = (selectCard: SelectCard) => {
+    setCards((prev) =>
+      prev.map((cards: Cards) => {
+        if (cards.id === selectCard.columnId) {
+          const newListItem: Card[] = cards.item.map((card: Card) => {
+            if (card.id === selectCard.item.id) {
+              return selectCard.item;
+            }
+            return card;
+          });
+          return {
+            ...cards,
+            item: newListItem,
+          };
+        }
+        return cards;
+      })
+    );
+  };
+  const addCardsItemComment = (selectCard: SelectCard, comment: Comment) => {
+    if (!comment.content) return;
+    setCards((prev) =>
+      prev.map((cards: Cards) => {
+        if (cards.id === selectCard.columnId) {
+          const newListItem: Card[] = cards.item.map((card: Card) => {
+            if (card.id === selectCard.item.id) {
+              const newComment = {
+                ...card,
+                countComments: card.countComments + 1,
+                comments: [comment, ...card.comments],
+              };
+              setSelectedCard({
+                ...selectCard,
+                item: newComment,
+              } as SelectCard);
+              return newComment;
+            }
+            return card;
+          });
+
+          return {
+            ...cards,
+            item: newListItem,
+          };
+        }
+        return cards;
+      })
+    );
+  };
+  const deleteCarsItemComment = (selectCard: SelectCard, comment: Comment) => {
+    if (!comment.content) return;
+    setCards((prev) =>
+      prev.map((cards: Cards) => {
+        if (cards.id === selectCard.columnId) {
+          const newListItem: Card[] = cards.item.map((card: Card) => {
+            if (card.id === selectCard.item.id) {
+              const newComments = card.comments.filter(
+                (commentItem: Comment) => commentItem.id !== comment.id
+              );
+              setSelectedCard({
+                ...selectCard,
+                item: {
+                  ...selectCard.item,
+                  countComments: card.countComments - 1,
+                  comments: newComments,
+                },
+              } as SelectCard);
+              return {
+                ...card,
+                comments: newComments,
+                countComments: card.countComments - 1,
+              };
+            }
+            return card;
+          });
+
+          return {
+            ...cards,
+            item: newListItem,
+          };
+        }
+        return cards;
+      })
+    );
+  };
+  const changeCardsItemComment = (selectCard: SelectCard, comment: Comment) => {
+    if (!comment.content) return;
+    setCards((prev) =>
+      prev.map((cards: Cards) => {
+        if (cards.id === selectCard.columnId) {
+          const newListItem: Card[] = cards.item.map((card: Card) => {
+            if (card.id === selectCard.item.id) {
+              const updatedComment = card.comments.map(
+                (commentItem: Comment) => {
+                  if (commentItem.id === comment.id) {
+                    return {
+                      ...commentItem,
+                      content: comment.content,
+                    };
+                  }
+                  return commentItem;
+                }
+              );
+              return {
+                ...card,
+                comments: updatedComment,
+              };
+            }
+            return card;
+          });
+
+          return {
+            ...cards,
+            item: newListItem,
+          };
+        }
+        return cards;
+      })
+    );
+  };
 
   return (
     <TrelloContext.Provider
@@ -175,6 +335,12 @@ export const TrelloContextProvider = (props: Props) => {
         setSelectedCard,
         addCardsItem,
         cards,
+        deleteCardsItem,
+        renameCardsItem,
+        changeDescrCardsItem,
+        addCardsItemComment,
+        deleteCarsItemComment,
+        changeCardsItemComment,
       }}
     >
       {props.children}

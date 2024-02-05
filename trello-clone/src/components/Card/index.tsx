@@ -5,28 +5,21 @@ import { useTrelloContext } from "../../context/context";
 
 interface Props {
   item: Card;
+  columnId: number;
 }
 
-const CardItem: FC<Props> = ({ item }) => {
+const CardItem: FC<Props> = ({ item, columnId }) => {
   const { setSelectedCard } = useTrelloContext();
 
   return (
     <div
-      onClick={() =>
-        setSelectedCard({
-          name: "string",
-          author: "",
-          descr: "string",
-          comments: [],
-          countComments: 0,
-        })
-      }
+      onClick={() => setSelectedCard({ item, columnId })}
       className={classes.cardItem}
     >
       <span className={classes.title}>{item.name}</span>
       {item.countComments !== 0 && (
         <div className={classes.footInfo}>
-          <span className={classes.iconComment}>
+          <span>
             <svg
               width="18"
               height="18"
@@ -41,7 +34,7 @@ const CardItem: FC<Props> = ({ item }) => {
               ></path>
             </svg>
           </span>
-          <span className={classes.titleComments}>{item.countComments}</span>
+          <span>{item.countComments}</span>
         </div>
       )}
     </div>

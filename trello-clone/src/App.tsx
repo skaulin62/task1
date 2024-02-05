@@ -8,12 +8,10 @@ import CardDetailsPopup from "./components/CardDetailsPopup";
 
 const App = () => {
   const { cards, selectedCard } = useTrelloContext();
-  console.log(selectedCard);
+
   return (
     <div className="container">
-      {Object.keys(selectedCard).length !== 0 ? (
-        <CardDetailsPopup card={selectedCard} />
-      ) : null}
+      {Object.keys(selectedCard).length !== 0 ? <CardDetailsPopup /> : null}
       <GreetingPopup />
       <Board>
         {cards.map((card: Cards, index: number) => (

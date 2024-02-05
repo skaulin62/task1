@@ -5,6 +5,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import { Card, Cards } from "../../types/types";
 import CardItem from "../Card";
 import { useTrelloContext } from "../../context/context";
+import { fakeID } from "../../utils";
 
 interface Props {
   card: Cards;
@@ -68,8 +69,9 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
   const clickAddCardItem = () => {
     if (isAdding) {
       const newCard: Card = {
+        id: fakeID(),
         name: newCardTitle,
-        author: JSON.stringify(window.localStorage.getItem("trelloUsername")),
+        author: window.localStorage.getItem("trelloUsername")!.toString(),
         descr: "",
         comments: [],
         countComments: 0,
@@ -81,6 +83,7 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
     setNewCardTitle("");
     setIsAdding(!isAdding);
   };
+
   return (
     <div className={classes.columnCards}>
       <div ref={inputColRef} className={classes.title}>
@@ -105,7 +108,7 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
       </div>
       <div className={classes.listCards}>
         {card.item.map((item: Card, index: number) => (
-          <CardItem key={index} item={item} />
+          <CardItem key={index} item={item} columnId={card.id} />
         ))}
       </div>
       <div

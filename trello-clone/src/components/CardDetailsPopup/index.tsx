@@ -1,54 +1,151 @@
-import { FC, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import classes from "./CardDetailsPopup.module.sass";
-import { Card } from "../../types/types";
+import { Cards, Comment, SelectCard } from "../../types/types";
 import IconCloseButton from "../UI/IconCloseButton";
 import Input from "../UI/Input";
 import Button from "../UI/Button";
-import Comment from "../Comment";
+import CommentItem from "../Comment";
 import { useTrelloContext } from "../../context/context";
+import { fakeID } from "../../utils";
 
-interface Props {
-  card: Card;
-}
+const CardDetailsPopup = () => {
+  const { selectedCard: selectCard } = useTrelloContext();
+  const { item, columnId } = selectCard;
+  const {
+    setSelectedCard,
+    deleteCardsItem,
+    cards,
+    renameCardsItem,
+    changeDescrCardsItem,
+    addCardsItemComment,
+  } = useTrelloContext();
 
-const CardDetailsPopup: FC<Props> = ({ card }) => {
-  const { setSelectedCard } = useTrelloContext();
+  const [descr, setDescr] = useState<string>(item.descr);
+  const [name, setName] = useState<string>("");
+  const [displayName, setDisplayName] = useState<string>(item.name);
+  const [comment, setComment] = useState<string>("");
+
+  const [isEditingName, setIsEditingName] = useState<boolean>(false);
+  const fieldNameRef = useRef<HTMLInputElement | null>(null);
+  const inputNameRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     const keyBoardHandler = (e: KeyboardEventInit) => {
       if (e.key === "Escape") {
-        setSelectedCard({} as Card);
+        setSelectedCard({} as SelectCard);
       }
-      console.log(1);
     };
     document.addEventListener("keydown", keyBoardHandler, true);
     return () => document.removeEventListener("keydown", keyBoardHandler, true);
   }, []);
 
+  useEffect(() => {
+    const clickOutInputCol = (e: MouseEvent) => {
+      if (
+        inputNameRef.current &&
+        !e.composedPath().includes(inputNameRef.current)
+      ) {
+        setIsEditingName(false);
+        setName("");
+      }
+    };
+    document.addEventListener("click", clickOutInputCol);
+    return () => {
+      document.removeEventListener("click", clickOutInputCol);
+    };
+  }, []);
+
+  const onClickDeleteCard = () => {
+    const isConfirmed = confirm("Do you really want to remove this card?");
+    if (isConfirmed) {
+      deleteCardsItem(selectCard);
+      setSelectedCard({} as SelectCard);
+    }
+  };
+
+  const handleChangeNewName = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (
+        renameCardsItem({
+          item: {
+            ...item,
+            name,
+          },
+          columnId: selectCard.columnId,
+        })
+      ) {
+        setDisplayName(name);
+
+        setName("");
+      }
+      setIsEditingName(false);
+    }
+  };
+
+  const cardsOne: Cards =
+    cards.find((card: Cards) => card.id === columnId) || ({} as Cards);
+
   return (
     <div className={classes.overlay}>
       <div className={classes.cardDetail}>
         <div className={classes.closeBlock}>
-          <IconCloseButton onClick={() => setSelectedCard({} as Card)} />
+          <IconCloseButton onClick={() => setSelectedCard({} as SelectCard)} />
         </div>
-        <span className={classes.colInfo}>Column: 13123 | Author: Name</span>
+        <span className={classes.colInfo}>
+          Column: {cardsOne.title} &nbsp; | &nbsp; Author: {item.author}
+        </span>
 
-        <div className={classes.title}>
+        <div ref={inputNameRef} className={classes.title}>
           <div style={{ width: "400px" }}>
-            <h3 style={{ paddingLeft: "10px" }}>
-              TITLEsdasadsssssssssssssssssssssss
+            <h3
+              onClick={() => {
+                setIsEditingName(true);
+                setTimeout(() => fieldNameRef.current?.focus());
+              }}
+              hidden={isEditingName}
+              style={{ paddingLeft: "10px" }}
+            >
+              {displayName}
             </h3>
-            {/* <Input onChange={() => {}} value="" /> */}
+            <Input
+              onKeyDown={handleChangeNewName}
+              ref={fieldNameRef}
+              hidden={!isEditingName}
+              clearValue={() => setName("")}
+              onChange={(e) => {
+                setName(e.target.value);
+              }}
+              value={name}
+            />
           </div>
         </div>
-        <button className={classes.deleteCard}>Delete</button>
+        <button
+          onClick={() => onClickDeleteCard()}
+          className={classes.deleteCard}
+        >
+          Delete
+        </button>
         <div className={classes.descr}>
-          <h3 className={classes.descrTitle}>Description</h3>
+          <h3>Description</h3>
           <textarea
+            placeholder="Typing what you think about..."
             className={classes.descrText}
-            value="dddddddddddddddddsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa dasda sdsdasdasdddddddddddddddddddddd"
-            onChange={() => {}}
+            value={descr}
+            onChange={(e) => setDescr(e.target.value)}
           />
-          <Button>Save</Button>
+          <Button
+            onClick={() =>
+              changeDescrCardsItem({
+                item: {
+                  ...item,
+                  descr,
+                },
+                columnId: selectCard.columnId,
+              })
+            }
+          >
+            Save
+          </Button>
         </div>
         <div className={classes.comments}>
           <h3 className={classes.descrTitle}>Comments</h3>
@@ -58,20 +155,36 @@ const CardDetailsPopup: FC<Props> = ({ card }) => {
             </div>
             <div className={classes.blockInfo}>
               <Input
+                clearValue={() => setComment("")}
                 placeholder="Typing something"
-                value=""
-                onChange={() => {}}
+                value={comment}
+                onChange={(e) => {
+                  setComment(e.target.value);
+                }}
               />
               <div className={classes.wrapperBtn}>
-                <Button>Post</Button>
+                <Button
+                  onClick={() => {
+                    addCardsItemComment(selectCard, {
+                      id: fakeID(),
+                      content: comment,
+                      author: selectCard.item.author,
+                    });
+                    setComment("");
+                  }}
+                >
+                  Post
+                </Button>
               </div>
             </div>
           </div>
-          <div className={classes.split}></div>
+          {item.comments.length > 0 ? (
+            <div className={classes.split}></div>
+          ) : null}
           <div className={classes.listComments}>
-            <Comment />
-            <Comment />
-            <Comment />
+            {item.comments.map((comment: Comment) => (
+              <CommentItem key={comment.id} comment={comment} />
+            ))}
           </div>
         </div>
       </div>
