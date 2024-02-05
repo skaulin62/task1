@@ -1,6 +1,7 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { Card, Cards, SelectCard, Comment } from "../types/types";
 import { fakeID } from "../utils";
+import { useLocalStorage } from "../hook/useLocalStorage";
 
 interface TypeContext {
   cards: Cards[];
@@ -23,97 +24,54 @@ type Props = {
   children?: React.ReactNode;
 };
 
+const initialData: Cards[] = [
+  {
+    id: fakeID(),
+    title: "TODO",
+    item: [],
+  },
+  {
+    id: fakeID(),
+    title: "In Progress",
+    item: [],
+  },
+  {
+    id: fakeID(),
+    title: "Testing",
+    item: [],
+  },
+  {
+    id: fakeID(),
+    title: "Done",
+    item: [],
+  },
+];
+
 export const TrelloContextProvider = (props: Props) => {
-  const [cards, setCards] = useState<Cards[]>([
-    {
-      id: fakeID(),
-      title: "TODO",
-      item: [
-        {
-          id: fakeID(),
-          name: "Name 1",
-          author: "Author 1",
-          descr: "",
-          comments: [
-            {
-              id: fakeID(),
-              author: "Author 1",
-              content: "Nice",
-            },
-            {
-              id: fakeID(),
-              author: "Author 2",
-              content: "GOOD",
-            },
-          ],
-          countComments: 2,
-        },
-      ],
-    },
-    {
-      id: fakeID(),
-      title: "In Progress",
-      item: [
-        {
-          id: fakeID(),
-          name: "Name 1",
-          author: "Author 1",
-          descr: "",
-          comments: [],
-          countComments: 0,
-        },
-        {
-          id: fakeID(),
-          name: "Name 2",
-          author: "Author 1",
-          descr: "",
-          comments: [],
-          countComments: 0,
-        },
-        {
-          id: fakeID(),
-          name: "Name 2",
-          author: "Author 1",
-          descr: "",
-          comments: [],
-          countComments: 0,
-        },
-      ],
-    },
-    {
-      id: fakeID(),
-      title: "Testing",
-      item: [
-        {
-          id: fakeID(),
-          name: "Name 1",
-          author: "Author 1",
-          descr: "",
-          comments: [
-            {
-              id: fakeID(),
-              author: "Author 1",
-              content: "Nice",
-            },
-            {
-              id: fakeID(),
-              author: "Author 2",
-              content: "GOOD",
-            },
-          ],
-          countComments: 2,
-        },
-      ],
-    },
-    {
-      id: fakeID(),
-      title: "Done",
-      item: [],
-    },
-  ]);
+  const [cards, setCards] = useState<Cards[]>([] as Cards[]);
+  const [storageCards, setStorageCards] = useLocalStorage("data");
+
   const [selectedCard, setSelectedCard] = useState<SelectCard>(
     {} as SelectCard
   );
+
+  useEffect(() => {
+    if (
+      !storageCards ||
+      storageCards === null ||
+      storageCards === undefined ||
+      storageCards === ([] as Cards[])
+    ) {
+      setCards(initialData);
+      setStorageCards(initialData);
+    } else {
+      setCards(storageCards);
+    }
+  }, []);
+
+  useEffect(() => {
+    setStorageCards(cards);
+  }, [cards]);
 
   const changeCardsTitle = (title: string, lastTitle: string) => {
     const includedCount = cards.reduce((acc: number, card: Cards) => {
