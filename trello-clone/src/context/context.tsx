@@ -49,19 +49,13 @@ const initialData: Cards[] = [
 
 export const TrelloContextProvider = (props: Props) => {
   const [cards, setCards] = useState<Cards[]>([] as Cards[]);
-  const [storageCards, setStorageCards] = useLocalStorage("data");
-
+  const [storageCards, setStorageCards] = useLocalStorage<Cards[]>("data");
   const [selectedCard, setSelectedCard] = useState<SelectCard>(
     {} as SelectCard
   );
 
   useEffect(() => {
-    if (
-      !storageCards ||
-      storageCards === null ||
-      storageCards === undefined ||
-      storageCards === ([] as Cards[])
-    ) {
+    if (!storageCards || !storageCards.length) {
       setCards(initialData);
       setStorageCards(initialData);
     } else {
@@ -78,7 +72,7 @@ export const TrelloContextProvider = (props: Props) => {
       if (card.title.toLowerCase() === title.toLowerCase()) acc += 1;
       return acc;
     }, 0);
-    console.log(includedCount);
+
     if (title && lastTitle && includedCount === 0) {
       setCards((prev) =>
         prev.map((card: Cards): Cards => {
@@ -88,7 +82,6 @@ export const TrelloContextProvider = (props: Props) => {
           return card;
         })
       );
-      console.log(cards);
     }
   };
   const addCardsItem = (item: Card, cards: Cards) => {
@@ -110,7 +103,6 @@ export const TrelloContextProvider = (props: Props) => {
         })
       );
     }
-    console.log(cards);
   };
   const deleteCardsItem = (selectCard: SelectCard) => {
     const { item, columnId } = selectCard;

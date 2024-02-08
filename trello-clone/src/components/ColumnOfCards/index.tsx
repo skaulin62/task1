@@ -78,8 +78,8 @@ const ColumnOfCards: FC<Props> = ({ card }) => {
       };
 
       addCardsItem(newCard, card);
-    } else {
     }
+
     setNewCardTitle("");
     setIsAdding(!isAdding);
   };

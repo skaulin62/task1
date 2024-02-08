@@ -6,7 +6,7 @@ import { useLocalStorage } from "../../hook/useLocalStorage";
 
 const GreetingPopup = () => {
   const [isShow, setIsShow] = useState<boolean>(true);
-  const [name, setName] = useLocalStorage("trelloUsername");
+  const [name, setName] = useLocalStorage<string>("trelloUsername");
 
   useEffect(() => {
     if (name) {
